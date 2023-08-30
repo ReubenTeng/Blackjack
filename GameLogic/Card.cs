@@ -65,6 +65,8 @@ public class Card
                 break;
             // 10, Jack, Queen, King all have value of 10
             case Value.Ten:
+                numValue = 10;
+                break;
             case Value.Jack:
                 valueStr = " J";
                 numValue = 10;
@@ -91,35 +93,7 @@ public class Card
         return $"{value} of {suit}";
     }
     public int getNumValue() {
-        // return the numerical value of the card
-        switch (value) {
-            case Value.Ace:
-                return 1;
-            case Value.Two:
-                return 2;
-            case Value.Three:
-                return 3;
-            case Value.Four:
-                return 4;
-            case Value.Five:
-                return 5;
-            case Value.Six:
-                return 6;
-            case Value.Seven:
-                return 7;
-            case Value.Eight:
-                return 8;
-            case Value.Nine:
-                return 9;
-            // 10, Jack, Queen, King all have value of 10
-            case Value.Ten:
-            case Value.Jack:
-            case Value.Queen:
-            case Value.King:
-                return 10;
-            default:
-                return 0;
-        }
+        return numValue;
     }
 
     public string[] GetASCIIString()

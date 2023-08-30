@@ -25,7 +25,7 @@ abstract public class Player
         // unless there are enough aces to bust or hit 21 
         for (int i = 0; i < numAces; i++) {
             int acesLeft = numAces - i + 1;
-            if (value + acesLeft >= 21) {
+            if (value + acesLeft >= 21 || value + 11 > 21) {
                 value += 1;
             } else {
                 value += 11;

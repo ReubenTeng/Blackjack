@@ -16,7 +16,11 @@ namespace GameLogic
         }
 
         public void Shuffle()
+        /// <summary>
+        /// Adds all 52 cards to the deck, then shuffles them
+        /// </summary>
         {   
+            Cards.Clear();
             foreach (Suit suit in Enum.GetValues(typeof(Suit)))
             {
                 foreach (Value value in Enum.GetValues(typeof(Value)))

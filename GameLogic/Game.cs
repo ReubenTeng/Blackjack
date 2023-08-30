@@ -1,4 +1,3 @@
-using System;
 using GameLogic;
 public class Game {
     User user;
@@ -12,15 +11,35 @@ public class Game {
     }
     private void DisplayHands()
     {
+        /// <summary>
+        /// Displays the user's hand and the dealer's hand (with the first card open)
+        /// </summary>
         Console.WriteLine($"Your hand: {user}");
         Console.WriteLine($"Dealer's hand: {dealer.ShowHand()}");
     }
 
     private void EndRound()
     {
+        /// <summary>
+        /// Ends the round by checking for busts, then comparing the values of the hands.
+        /// </summary>
         DisplayHands();
+        // Check for blackjack
+        if (user.IsBlackjack() && !dealer.IsBlackjack())
+        {
+            Console.WriteLine("Blackjack! Payout is 3:2 rounded down.");
+            user.Win();
+        }
+        else if (!user.IsBlackjack() && dealer.IsBlackjack())
+        {
+            user.Lose(LossTypes.DealBlackjack);
+        }
+        else if (user.IsBlackjack() && dealer.IsBlackjack())
+        {
+            Console.WriteLine("Push");
+        }
         // check for bust
-        if (user.IsBust())
+        else if (user.IsBust())
         {
             user.Lose(LossTypes.Bust);
         } else if (dealer.IsBust())
@@ -43,9 +62,12 @@ public class Game {
 
     private void UserTurn()
     {
+        /// <summary>
+        /// Allows the user to draw cards until they stay or bust
+        /// </summary>
         while (!user.IsBust())
         {
-            int choice = readNumFromInput($"1: Draw Card\n2: Stay");
+            int choice = ReadNumFromInput($"1: Draw Card\n2: Stay");
             if (choice == 1)
             {
                 Card drawnCard = deck.Draw();
@@ -64,6 +86,9 @@ public class Game {
     }
     private void DealerTurn()
     {
+        /// <summary>
+        /// Dealer draws cards until they hit 17 or bust
+        /// </summary>
         while (dealer.IsDrawing())
         {
             Card drawnCard = deck.Draw();
@@ -72,41 +97,28 @@ public class Game {
         }
     }
 
-    private void playRound()
-    {
-        if (user.IsBlackjack() && !dealer.IsBlackjack())
-        {
-            DisplayHands();
-            Console.WriteLine("Blackjack! Payout is 3:2");
-            user.Win();
-        }
-        else if (!user.IsBlackjack() && dealer.IsBlackjack())
-        {
-            DisplayHands();
-            user.Lose(LossTypes.DealBlackjack);
-        }
-        else if (user.IsBlackjack() && dealer.IsBlackjack())
-        {
-            DisplayHands();
-            Console.WriteLine("Push");
-        }
-        else
+    private void PlayRound()
+    {   
+        if (user.IsBlackjack() || dealer.IsBlackjack()) {
+            EndRound();
+        } else
         {
             UserTurn();
 
             if (user.IsBust())
             {
                 EndRound();
-                return;
+            } else {
+                DealerTurn();
+                EndRound();
             }
-
-            DealerTurn();
-            EndRound();
         }
     }
 
-    private int readNumFromInput(string display)
+    private int ReadNumFromInput(string display)
     {
+        /// <summary>
+        /// Displays the given message and then reads a number from the console, and checks for invalid input (non-numeric).
         Console.WriteLine(display);
         while (true)
         {
@@ -120,57 +132,56 @@ public class Game {
             }
         }
     }
-    public void startGame() {
+    public void StartGame() {
 
         // print welcome message
         Console.WriteLine("Welcome to Blackjack!");
 
         // take user input for starting chips
-        user.SetChips(readNumFromInput("How many chips would you like to start with?"));
+        user.SetChips(ReadNumFromInput("How many chips would you like to start with?"));
 
         // main game loop
         while (user.chips > 0) {
-            try
+            // check if player wants to play
+            int playAgain = ReadNumFromInput($"You have {user.chips} chips left. Would you like to play?\n1: Yes\n2: No");
+            if (playAgain == 2)
             {
-                int playAgain = readNumFromInput($"You have {user.chips} chips left. Would you like to play?\n1: Yes\n2: No");
-                if (playAgain == 2)
-                {
-                    break;
-                } else if (playAgain != 1)
-                {
-                    Console.WriteLine("Invalid input.");
-                    continue;
-                }
-
-                int bet = readNumFromInput($"How much would you like to bet?");
-                if (bet > user.chips || bet <= 0)
-                {
-                    Console.WriteLine("Invalid input. Please make sure your bet is larger than 1 and is less than the number of chips you have.");
-                    continue;
-                }
-                user.SetBet(bet);
-                if (deck.Cards.Count < 10) {
-                    Console.WriteLine("Reshuffling the deck...");
-                    deck.Shuffle();
-                }
-                user.Reset();
-                dealer.Reset();
-                user.Hit(deck.Draw());
-                dealer.Hit(deck.Draw());
-                user.Hit(deck.Draw());
-                dealer.Hit(deck.Draw());
-
-                Console.WriteLine($"Your hand: {user}");
-                Console.WriteLine($"Dealer's hand: {dealer}");
-
-
-                playRound();
-            } catch (System.FormatException)
+                break;
+            } else if (playAgain != 1)
             {
+                Console.WriteLine("Invalid input.");
                 continue;
             }
+            // take user input for bet
+            int bet = ReadNumFromInput($"How much would you like to bet?");
+            if (bet > user.chips || bet <= 0)
+            {
+                Console.WriteLine("Invalid input. Please make sure your bet is larger than 1 and is less than the number of chips you have.");
+                continue;
+            }
+            user.SetBet(bet);
+            // when there are less than 15 cards left in the deck, reshuffle
+            if (deck.Cards.Count < 15) {
+                Console.WriteLine("Reshuffling the deck...");
+                deck.Shuffle();
+            }
+            // deal cards
+            user.Reset();
+            dealer.Reset();
+            user.Hit(deck.Draw());
+            dealer.Hit(deck.Draw());
+            user.Hit(deck.Draw());
+            dealer.Hit(deck.Draw());
+
+            Console.WriteLine($"Your hand: {user}");
+            Console.WriteLine($"Dealer's hand: {dealer}");
+
+            PlayRound();
+            
         }
-        Console.WriteLine("Thanks for playing!");
+        Console.WriteLine("Thanks for playing! Press any key to exit :)");
+        Console.ReadKey();
+        return;
     }
 }
 
