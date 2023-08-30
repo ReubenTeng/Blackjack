@@ -6,5 +6,6 @@ A small console-based blackjack game, with only one dealer and one player. Most 
 - Add GUI
 - Add user accounts and keep track of how many chips each user has left
 - Fairer shuffling
+- Add tests
 
 Built in C#.
